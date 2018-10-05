@@ -1,16 +1,10 @@
+# coding=utf-8
 """
 下面的文件将会从csv文件中读取读取短信与电话记录，
 你将在以后的课程中了解更多有关读取文件的知识。
 """
 import csv
-
-with open('texts.csv', 'r') as f:
-    reader = csv.reader(f)
-    texts = list(reader)
-
-with open('calls.csv', 'r') as f:
-    reader = csv.reader(f)
-    calls = list(reader)
+import re
 
 """
 任务3:
@@ -28,7 +22,7 @@ with open('calls.csv', 'r') as f:
 输出信息:
 "The numbers called by people in Bangalore have codes:"
  <list of codes>
-代号不能重复，每行打印一条，按字典顺序排序后输出。
+代号不能重复，[每行打印一条，按字典顺序排序后输出。
 
 第二部分: 由班加罗尔固话打往班加罗尔的电话所占比例是多少？
 换句话说，所有由（080）开头的号码拨出的通话中，
@@ -39,3 +33,44 @@ with open('calls.csv', 'r') as f:
 to other fixed lines in Bangalore."
 注意：百分比应包含2位小数。
 """
+
+fixed_line_telephone = r'^\(0\d+\)\d+'
+mobile_telephone = r'^[7-9]\d+ \d+'
+area_code = r"^\(0\d+\)"
+bangalore_area_code = "(080)"
+
+bangalore_call_number = []
+
+
+def is_from_bangalore(from_number, call_number):
+    """
+    :param from_number: 打电话的号码
+    :param call_number:  接电话的号码
+    """
+    if str(from_number).startswith(bangalore_area_code):
+        bangalore_call_number.append(call_number)
+
+
+try:
+    with open('calls.csv', 'r') as f:
+        reader = csv.reader(f)
+        calls = list(reader)
+        for call in calls:
+            is_from_bangalore(call[0], call[1])
+except IOError:
+    print("not find the texts.csv, please check the file")
+
+analyze_call_number = []
+for target_number in bangalore_call_number:
+    if re.match(r'%s' % fixed_line_telephone, target_number):
+        analyze_call_number.append(re.findall(area_code, target_number)[0])
+    if re.match(r'%s' % mobile_telephone, target_number):
+        analyze_call_number.append(str(target_number).split(" ")[0])
+
+print("The numbers called by people in Bangalore have codes:")
+for number in sorted(set(analyze_call_number)):
+    print(number)
+
+target_number_bangalore = list(filter(lambda number: number.startswith(bangalore_area_code), bangalore_call_number))
+print("{:.2f}% percent of calls from fixed lines in Bangalore are calls to other fixed lines in Bangalore.".format(
+    float(target_number_bangalore.__len__()) / float(bangalore_call_number.__len__())))

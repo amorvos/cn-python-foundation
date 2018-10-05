@@ -1,16 +1,9 @@
+# coding=utf-8
 """
 下面的文件将会从csv文件中读取读取短信与电话记录，
 你将在以后的课程中了解更多有关读取文件的知识。
 """
 import csv
-
-with open('texts.csv', 'r') as f:
-    reader = csv.reader(f)
-    texts = list(reader)
-
-with open('calls.csv', 'r') as f:
-    reader = csv.reader(f)
-    calls = list(reader)
 
 """
 任务4:
@@ -25,4 +18,21 @@ with open('calls.csv', 'r') as f:
 <list of numbers>
 电话号码不能重复，每行打印一条，按字典顺序排序后输出。
 """
+promote_number = "140"
 
+promote_call_number = set()
+
+try:
+    with open('calls.csv', 'r') as f:
+        reader = csv.reader(f)
+        calls = list(reader)
+        for call in calls:
+            if str(call[0]).startswith(promote_number):
+                if str(call[0]).split(" ").__len__() == 1:
+                    promote_call_number.add(call[0])
+except IOError:
+    print("not find the texts.csv, please check the file")
+
+print("These numbers could be telemarketers: ")
+for number in sorted(set(promote_call_number)):
+    print(number)
