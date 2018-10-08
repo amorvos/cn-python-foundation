@@ -30,7 +30,7 @@ try:
                 call_statistics[call[0]] += int(call[3])
             else:
                 call_statistics[call[0]] = int(call[3])
-            if call_statistics.has_key(call[1]):
+            if call_statistics.__contains__(call[1]):
                 call_statistics[call[1]] += int(call[3])
             else:
                 call_statistics[call[1]] = int(call[3])

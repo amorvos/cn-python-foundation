@@ -72,5 +72,5 @@ for number in sorted(set(analyze_call_number)):
     print(number)
 
 target_number_bangalore = list(filter(lambda number: number.startswith(bangalore_area_code), bangalore_call_number))
-print("{}% percent of calls from fixed lines in Bangalore are calls to other fixed lines in Bangalore.".format(
-    target_number_bangalore.__len__() * 100 / bangalore_call_number.__len__()))
+print("{:.4}% percent of calls from fixed lines in Bangalore are calls to other fixed lines in Bangalore.".format(
+    (float(target_number_bangalore.__len__() * 100.0) / float(bangalore_call_number.__len__()))))
