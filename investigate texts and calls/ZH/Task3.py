@@ -63,14 +63,14 @@ except IOError:
 analyze_call_number = []
 for target_number in bangalore_call_number:
     if re.match(r'%s' % fixed_line_telephone, target_number):
-        analyze_call_number.append(re.findall(area_code, target_number)[0])
+        analyze_call_number.append(str(re.findall(area_code, target_number)[0])[1:-1])
     if re.match(r'%s' % mobile_telephone, target_number):
-        analyze_call_number.append(str(target_number).split(" ")[0])
+        analyze_call_number.append(str(str(target_number).split(" ")[0])[0:4])
 
 print("The numbers called by people in Bangalore have codes:")
 for number in sorted(set(analyze_call_number)):
     print(number)
 
 target_number_bangalore = list(filter(lambda number: number.startswith(bangalore_area_code), bangalore_call_number))
-print("{:.2f}% percent of calls from fixed lines in Bangalore are calls to other fixed lines in Bangalore.".format(
-    float(target_number_bangalore.__len__()) / float(bangalore_call_number.__len__())))
+print("{}% percent of calls from fixed lines in Bangalore are calls to other fixed lines in Bangalore.".format(
+    target_number_bangalore.__len__() * 100 / bangalore_call_number.__len__()))
