@@ -26,7 +26,7 @@ try:
         reader = csv.reader(f)
         calls = list(reader)
         for call in calls:
-            if call_statistics.has_key(call[0]):
+            if call_statistics.__contains__(call[0]):
                 call_statistics[call[0]] += int(call[3])
             else:
                 call_statistics[call[0]] = int(call[3])

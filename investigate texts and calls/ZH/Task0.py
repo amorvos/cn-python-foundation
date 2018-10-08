@@ -33,7 +33,7 @@ try:
         reader = csv.reader(f)
         calls = list(reader)
         if len(calls) > 0:
-            call_last = calls[len(calls) - 1]
+            call_last = calls[-1]
 except IOError:
     print("not find the texts.csv, please check the file")
 
