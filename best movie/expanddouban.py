@@ -1,11 +1,30 @@
 # coding:utf-8
+import csv
 import time
 
 from bs4 import BeautifulSoup
 from selenium import webdriver
 
+douban_movie_url = "https://movie.douban.com/tag/#/?sort=S&range=9,10&tags="
 
-def getHtml(url, load_more=False, wait_time=2):
+movie_list = set()
+category_location_movie_count = {}
+category_list = ["剧情"]
+location_list = ["美国"]
+
+
+def get_movie_url(category, location):
+    tags = set()
+    tags.add("电影")
+    url = str(douban_movie_url)
+    if category is not None:
+        tags.add(category)
+    if location is not None:
+        tags.add(location)
+    return url + ",".join(tags)
+
+
+def get_html(url, load_more=False, wait_time=2):
     option = webdriver.ChromeOptions()
     option.add_argument("headless")
     browser = webdriver.Chrome(chrome_options=option)
@@ -15,26 +34,61 @@ def getHtml(url, load_more=False, wait_time=2):
         while True:
             try:
                 next_button = browser.find_element_by_class_name("more")
-                click = next_button.click()
-                print(click)
+                next_button.click()
                 time.sleep(wait_time)
             except:
                 break
     html = browser.page_source
-    print(html)
     browser.quit()
     return html
 
 
-# for test
-url = "https://movie.douban.com/tag/#/?sort=S&range=9,10&tags=电影,剧情,美国"
-html = getHtml(url, True)
-print(html)
-"""
-url: the douban page we will get html from
-loadmore: whether or not click load more on the bottom 
-waittime: seconds the broswer will wait after intial load and 
-"""
+class movie:
+    def __init__(self, name=None, rate=None, location=None, category=None, info_link=None, cover_link=None):
+        self.name = name
+        self.rate = rate
+        self.location = location
+        self.category = category
+        self.info_link = info_link
+        self.cover_link = cover_link
 
-# soup = BeautifulSoup(html, "html.parser")
-# print(soup.findAll())
+
+def get_movies(category, location):
+    movie_url = get_movie_url(category, location)
+    movie_html = get_html(movie_url, True)
+    soup = BeautifulSoup(movie_html)
+    movie_item = soup.find_all('a', class_="item")
+    movies = set()
+    for item in movie_item:
+        info_link = item.attrs.get('href')
+        cover_link = item.div.span.img.attrs.get('src')
+        name_tag = item.p.next
+        name = name_tag.next
+        rate_tag = name_tag.next.next.next
+        rate = rate_tag.next
+        movies.add(movie(name, rate, location, category, info_link, cover_link))
+    if category_location_movie_count.__contains__(category):
+        category_location_movie_count[category] |= {location: movies.__len__()}
+    else:
+        category_location_movie_count[category] = {location: movies.__len__()}
+    return movies
+
+
+for category in category_list:
+    for location in location_list:
+        movie_list |= get_movies(category, location)
+
+with open('movies.csv', 'w', newline='', encoding='utf8') as movie_file:
+    writer = csv.writer(movie_file)
+    for movie in movie_list:
+        writer.writerow(movie.__dict__.values())
+
+for category in category_list:
+    location_movie_count = sorted(category_location_movie_count.get(category).items(),
+                                  key=lambda count: count[1], reverse=True)
+    total = 0
+    movie_dict = dict(location_movie_count)
+    for location in location_list:
+        total += movie_dict[location]
+    for location in location_list:
+        print([category, location, movie_dict[location], (float(movie_dict[location]) / float(total))])
