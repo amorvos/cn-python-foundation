@@ -61,7 +61,6 @@ class movie:
 
 def get_movies(category=None, location=None):
     movie_url = get_movie_url(category, location)
-    print(movie_url)
     movie_html = get_html(movie_url, True)
     soup = BeautifulSoup(movie_html, features="html.parser")
     movie_item = soup.find_all('a', class_="item")
